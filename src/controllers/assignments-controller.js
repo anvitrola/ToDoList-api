@@ -18,6 +18,26 @@ module.exports = app => {
             res.send("Request error!");
         }
     });
+
+    app.get("/assignments/:title", (req, res) =>{
+        assignmentsList.filter((object) => {
+           
+            if(object.title == req.params.title){
+                res.send(object)
+            } else{
+                res.send({status: "ERROR: cannot find this assignment."})
+            }
+        })
+    }); //searching for an assignment in database through it's title, which is GET param (:title)
+
+    app.delete("/assignments/:title", (req, res) =>{
+        assignmentsList.forEach((object, position) =>{
+            if (object.title == req.params.title){
+                assignmentsList.splice(position, 1); 
+            }
+        })
+        res.send({status: "User successfully deleted"});
+    });//checking which assignment title matches the one to be deleted
 };
 
 
