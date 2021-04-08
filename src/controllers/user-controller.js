@@ -1,16 +1,20 @@
 const User = require("../models/user-model"); //importing user model
 const usersList = require("../config/bd.js").users; //importing users table on "database"
+const db = require("../infra/sqlite-db");  //importing database
 
 module.exports = app => {
     app.get("/user", (_, res) => {
         res.send(usersList); //sending list with all users 
+        db.all("SELECT nome FROM usuarios", (err, rows) =>{
+            err ? console.log(err) : console.log("all users name was required"); //testing database query
+        })
     });
 
     app.post("/user", (req, res) => {
         let body = req.body;
         const user = new User(body.name, body.username, body.email, body.password); //creating new user
 
-        //if there is not empty spaces, then push new user to it"s table on database
+        //if there is not empty spaces, then push new user to it's table on database
         if (body.name && body.username && body.email && body.password){
             usersList.push(user.profile());
             res.send({status: "User created succesfully!"}); //"200" msg
@@ -46,5 +50,5 @@ module.exports = app => {
             }
         })
         res.send({status: "User's email was sucessully updated"})
-    })
+    }); //uploading user's email. we use patch, not put, to upload just a few fields
 }; 

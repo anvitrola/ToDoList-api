@@ -1,6 +1,5 @@
 const chalk = require("chalk"); //painting terminal to becomes easier to find errors
 const customExpress = require("./config/customExpress"); //requiring server configurations (customExpress)
-
 const app = customExpress();
 
 app.use((req, _, next) => {
