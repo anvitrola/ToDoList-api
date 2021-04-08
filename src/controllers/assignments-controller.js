@@ -38,6 +38,15 @@ module.exports = app => {
         })
         res.send({status: "User successfully deleted"});
     });//checking which assignment title matches the one to be deleted
+    
+    app.patch("/assignments/:title", (req, res) =>{
+        usersList.filter((object) =>{
+            if (object.title == req.params.title){
+                object.title = req.body.title
+            }
+        })
+        res.send({status: "User's email was sucessully updated"})
+    })
 };
 
 

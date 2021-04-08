@@ -38,4 +38,13 @@ module.exports = app => {
         })
         res.send({status: "User successfully deleted"});
     }); //checking which user's email matches the one to be deleted. ForEach checks the object and splice deletes using object's position on Array (list of users)
+
+    app.patch("/user/:email", (req, res) =>{
+        usersList.filter((object) =>{
+            if (object.email == req.params.email){
+                object.email = req.body.email
+            }
+        })
+        res.send({status: "User's email was sucessully updated"})
+    })
 }; 
