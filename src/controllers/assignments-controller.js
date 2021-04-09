@@ -1,9 +1,13 @@
 const Assignment = require('../models/assignments-model'); //importing assignment model
 const assignmentsList = require('../config/bd.js').assignments; //importing assignments table on "database"
+const db = require("../infra/sqlite-db");  //importing database
 
 module.exports = app => {
     app.get('/assignments', (_, res) => {
         res.send(assignmentsList); //sending list with all assignments
+        db.all("SELECT titulo FROM tarefas", (err, rows) =>{
+            err ? console.log(err) : console.log("all assignments title was required"); //testing database query
+        })
     });
     
     app.post('/assignments', (req, res) => {
