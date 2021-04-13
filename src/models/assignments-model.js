@@ -1,15 +1,15 @@
 class Assignments {
-    constructor(title, limitDate, description){
+    constructor(title, createdDate, description){
         this.__title = title,
-        this.__limitDate = limitDate,
+        this.__createdDate = createdDate,
         this.__description = description,
         this.__status = false
     }
     get title (){
         return this.__title;
     }
-    get limitDate (){
-        return this.__limitDate;
+    get createdDate (){
+        return this.__createdDate;
     }
     get description (){
         return this.__description;
@@ -20,7 +20,7 @@ class Assignments {
     assignment(){
         return {
             title: this.title,
-            limitDate: this.limitDate,
+            limitDate: this.createdDate,
             description: this.description,
             status: this.status
         }
