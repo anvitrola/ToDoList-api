@@ -5,74 +5,116 @@ const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('database.db');
 
 //==== Usuários
-const USUARIOS_SCHEMA = `
-CREATE TABLE IF NOT EXISTS "USUARIOS" (
-    "ID" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "NOME" varchar(64),
-    "EMAIL" varchar(64),
-    "SENHA" varchar(64)
-  );`;
+const USERS_SCHEMA = `
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name varchar(64),
+    email varchar(64),
+    password varchar(64)
+);`;
 
-const ADD_USUARIOS_DATA = `
-INSERT INTO USUARIOS (ID, NOME, EMAIL, SENHA)
-VALUES 
-    (1, 'Eugênio Oliveira', 'eugenio.oliveira@bol.com.br', '*******'),
-    (2, 'Olívia Ribeiro', 'olivia.ribeiro@gmail.com', '********'),
-    (3, 'Mirtes Faria Lima', 'mirtes_fl@yahoo.com', '********')
+const ADD_USERS_DATA = `
+INSERT INTO users (
+    name, 
+    email, 
+    password
+    ) VALUES 
+    ('Eugênio Oliveira', 
+    'eugenio.oliveira@bol.com.br', 
+    '*******'
+    ),
+    ('Olívia Ribeiro', 
+    'olivia.ribeiro@gmail.com', 
+    '********'
+    ),
+    ('Mirtes Faria Lima', 
+    'mirtes_fl@yahoo.com', 
+    '********'
+    )
 `
 
 function criaTabelaUsr() {
-    db.run(USUARIOS_SCHEMA, (error)=> {
-       if (error) console.log("Erro ao criar tabela de usuários");
+    db.run(USERS_SCHEMA, (error)=> {
+       if (error) console.log("Error creating users table");
     });
 }
 
 
 function populaTabelaUsr() {
-    db.run(ADD_USUARIOS_DATA, (error)=> {
-       if (error) console.log("Erro ao popular tabela de usuários");
+    db.run(ADD_USERS_DATA, (error)=> {
+       if (error) console.log("Error adding user's data");
     });
 }
 
 
-//==== Tarefas
-const TAREFAS_SCHEMA = `
-CREATE TABLE IF NOT EXISTS TAREFAS (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-    TITULO VARCHAR(64),
-    DESCRICAO TEXT,
-    STATUS VARCHAR(32),
-    DATACRIACAO VARCHAR(32),
-    ID_USUARIO INTEGER,
-    FOREIGN KEY(ID_USUARIO) REFERENCES USUARIOD(ID)
+//==== ASSIGNMENTS
+const ASSIGNMENTS_SCHEMA = `
+CREATE TABLE IF NOT EXISTS assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    title VARCHAR(64),
+    description TEXT,
+    status VARCHAR(32),
+    created_at VARCHAR(32),
+    user_id INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );`;
 
-const ADD_TAREFAS_DATA = `INSERT INTO TAREFAS (TITULO, DESCRICAO, STATUS, DATACRIACAO, ID_USUARIO)
-VALUES 
-       ('Yoga', 'Fazer yoga segunda e quarta', 'Continuo', '2021-01-10', 2),
-       ('Médico', 'Consulta com Dr. Ayrton sexta', 'TODO', '2021-01-13', 1),
-       ('Pagar contas', 'Pagar boletos de água e luz', 'DOING', '2021-01-02', 2),
-       ('Mercado', 'Pegar lista na geladeira e fazer compras', 'TODO', '2021-01-08', 2),
-       ('Dentista', 'Consulta com Dra Andreia sexta', 'TODO', '2021-01-11', 1),
-       ('Pagar financiamento carro', 'Pagar parcela do mês do financiamento', 'Contínuo', '2021-01-05', 3)
+const ADD_ASSIGNMENTS_DATA = `
+    INSERT INTO assignments (
+        title, 
+        description, 
+        status, 
+        created_at, 
+        user_id
+    ) VALUES 
+        ('Yoga', 
+        'Practice yoga on Mondays and Fridays', 
+        'Continuous', 
+        '2021-01-10', 
+        2),
+        ('Hospital', 
+        'Appoinment with Dr. Ayrton on Friday', 
+        'TO-DO', 
+        '2021-01-13', 
+        1),
+        ('Pay bills', 
+        'Eletricity and water bills', 
+        'DOING', 
+        '2021-01-02', 
+        2),
+        ('Grocery', 
+        'Make a list of veggetables and fruits', 
+        'TO-DO', 
+        '2021-01-08', 
+        2),
+        ('Dentist', 
+        'With Dra Andreia on friday', 
+        'TO-DO', 
+        '2021-01-11', 
+        1),
+        ('Pay rent', 
+        'Every second tuesday of new month', 
+        'Continuous', 
+        '2021-01-05', 
+        3)
 `
 
-function criaTabelaTarefas() {
-    db.run(TAREFAS_SCHEMA, (error)=> {
-        if(error) console.log("Erro ao criar tabela de Tarefas");
+function criaTabelaAssignments() {
+    db.run(ASSIGNMENTS_SCHEMA, (error)=> {
+        if(error) console.log("Error creating assignments table");
     });
 }
 
 
-function populaTabelaTarefas() {
-    db.run(ADD_TAREFAS_DATA, (error)=> {
-       if (error) console.log("Erro ao popular tabela de Tarefas");
+function populaTabelaAssignments() {
+    db.run(ADD_ASSIGNMENTS_DATA, (error)=> {
+       if (error) console.log("Error adding assignments's data");
     });
 }
 
 db.serialize( ()=> {
     criaTabelaUsr();
     populaTabelaUsr();
-    criaTabelaTarefas();
-    populaTabelaTarefas();
+    criaTabelaAssignments();
+    populaTabelaAssignments();
 });
