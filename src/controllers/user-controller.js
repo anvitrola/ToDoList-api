@@ -1,50 +1,57 @@
-const User = require("../models/user-model"); //importing user model
-const usersList = require("../config/bd.js").users; //importing users table on "database"
-const db = require("../infra/sqlite-db");  //importing database
+const User = require("../models/user-model"); 
+const db = require("../infra/sqlite-db"); 
 const DAO = require("../DAO/users-dao.js");
+
 const usersData = new DAO(db);
 
 module.exports = app => {
     app.get("/user", (_, res) => {
-        usersData.showUsers(res);
+        usersData.get()
+            .then(rows => res.send(rows))
+            .catch(err => res.send(`[ERROR][status: ${err.status}]`));
     });
 
     app.post("/user", (req, res) => {
         let body = req.body;
-        const user = new User(body.name, body.email, body.password); //creating new user
+        const user = new User(
+            body.name, 
+            body.email, 
+            body.password
+        ); //creating new profile
 
-        //checking empty spaces
         if (body.name && body.email && body.password){
-            usersData.insertUser(res, user.profile())
+            usersData.insert(user.profile())
+                .then(success => res.send(`User succesfully added to database`))
+                .catch(err => res.send(`[ERROR][status: ${err.status}]`))
         }
     });
 
-    app.get("/user/:email", (req, res) =>{
-        usersList.filter((object) => {
-           
-            if(object.email == req.params.email){
-                res.send(object)
-            } else{
-                res.send({status: "Cannot find this user."})
-            }
-        })
-    }); //searching for an user in database using it's email, which is GET param (:email)
+    app.delete("/user/:id", (req, res) => {
+        usersData.delete(req.params.id)
+            .then(success => res.send("User successfully deleted"))
+            .catch(err => res.send(`[ERROR][status: ${err.status}]`))
+    });
 
-    app.delete("/user/:email", (req, res) =>{
-        usersList.forEach((object, position) =>{
-            if (object.email == req.params.email){
-                usersList.splice(position, 1); 
-            }
-        })
-        res.send({status: "User successfully deleted"});
-    }); //checking which user's email matches the one to be deleted. ForEach checks the object and splice deletes using object's position on Array (list of users)
+    app.put("/user/:id" , (req, res) => {
+        const updatedUser = {
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password
+        };
 
-    app.patch("/user/:email", (req, res) =>{
-        usersList.filter((object) =>{
-            if (object.email == req.params.email){
-                object.email = req.body.email
-            }
-        })
-        res.send({status: "User's email was sucessully updated"})
-    }); //uploading user's email. we use patch, not put, to upload just a few fields
+        usersData.update(updatedUser, req.params.id)
+            .then(success => res.send("User's information successfully updated"))
+            .catch(err => res.send(`[ERROR][status: ${err.status}]`))
+    })
+    
+    app.get("/user/:id", (req, res) => {
+        usersData.getUser(req.params.id)
+            .then(row => {
+                console.log(row);   
+            })
+            .then(() => {
+                res.send(`User ${req.params.id} informations was returned. Check console`);
+            })
+            .catch(err => res.send(`[ERROR][status: ${err.status}]`))
+    }); //bugFix: cannot return data on insomnia. only console. don't know why yet.
 }; 

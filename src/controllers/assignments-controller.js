@@ -1,56 +1,57 @@
-const Assignment = require('../models/assignments-model'); //importing assignment model
-const assignmentsList = require('../config/bd.js').assignments; //importing assignments table on "database"
-const db = require("../infra/sqlite-db");  //importing database
+const Assignment = require('../models/assignments-model'); 
+const db = require("../infra/sqlite-db"); 
+const DAO = require("../DAO/assignments-dao");
+
+const assignmentsData = new DAO(db);
 
 module.exports = app => {
     app.get('/assignments', (_, res) => {
-        res.send(assignmentsList); //sending list with all assignments
-        db.all("SELECT titulo FROM tarefas", (err, rows) =>{
-            err ? console.log(err) : console.log("all assignments title was required"); //testing database query
-        })
+        assignmentsData.get()
+            .then(rows => res.send(rows))
+            .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
     });
-    
     app.post('/assignments', (req, res) => {
         let body = req.body; 
-        const assignment = new Assignment(body.title, body.limitDate, body.description); //creating new assignment
+        const assignment = new Assignment(
+            body.title, 
+            body.description, 
+            body.status, 
+            body.created_at, 
+            body.user_id
+        ); 
 
-        //if there is not empty spaces, then push new assignment to it's table on database
-        if (body.title && body.limitDate && body.description){
-            assignmentsList.push(assignment.assignment());
-            res.send({status: 'Assignment added succesfully!'}); //"200" msg
-        } else {
-            res.send("Request error!");
-        }
+        if (body.title && body.description && body.status && body.created_at && body.user_id){
+            assignmentsData.insert(assignment.assignment())
+                .then(() => res.send("Assignment successfully added to database"))
+                .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
+        } 
     });
+    app.delete("/assignments/:id", (req, res) => {
+        assignmentsData.delete(req.params.id)
+            .then(() => res.send("Assignment successfully deleted"))
+            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+    });
+    app.put("/assignments/:id", (req, res) => {
+        let body = req.body;
 
-    app.get("/assignments/:title", (req, res) =>{
-        assignmentsList.filter((object) => {
-           
-            if(object.title == req.params.title){
-                res.send(object)
-            } else{
-                res.send({status: "ERROR: cannot find this assignment."})
-            }
-        })
-    }); //searching for an assignment in database through it's title, which is GET param (:title)
+        const updatedAssignment = {
+            title: body.title,
+            description: body.description,
+            status: body.status,
+            created_at: body.created_at,
+            user_id: body.user_id
+        }
 
-    app.delete("/assignments/:title", (req, res) =>{
-        assignmentsList.forEach((object, position) =>{
-            if (object.title == req.params.title){
-                assignmentsList.splice(position, 1); 
-            }
-        })
-        res.send({status: "User successfully deleted"});
-    });//checking which assignment title matches the one to be deleted
-    
-    app.patch("/assignments/:title", (req, res) =>{
-        usersList.filter((object) =>{
-            if (object.title == req.params.title){
-                object.title = req.body.title
-            }
-        })
-        res.send({status: "User's email was sucessully updated"})
-    })
+        assignmentsData.update(updatedAssignment, req.params.id)
+            .then(() => res.send("Assignment was successfully updated"))
+            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+    });
+    app.get("/assignments/:id", (req, res) => {
+        assignmentsData.getAssignment(req.params.id)
+            .then((row) => console.log(row))
+            .then(() => res.send(`Assignment ${req.params.id} informations was returned. check console`))
+            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+    });
 };
 
 

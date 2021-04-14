@@ -1,28 +1,18 @@
 class Assignments {
-    constructor(title, createdDate, description){
+    constructor(title, description, status, created_at, user_id){
         this.__title = title,
-        this.__createdDate = createdDate,
         this.__description = description,
-        this.__status = false
-    }
-    get title (){
-        return this.__title;
-    }
-    get createdDate (){
-        return this.__createdDate;
-    }
-    get description (){
-        return this.__description;
-    }
-    get status (){
-        return this.__status;
+        this.__status = status,
+        this.__created_at = created_at,
+        this.__user_id = user_id
     }
     assignment(){
         return {
-            title: this.title,
-            limitDate: this.createdDate,
-            description: this.description,
-            status: this.status
+            title: this.__title,
+            description: this.__description,
+            status: this.__status,
+            created_at: this.__created_at,
+            user_id: this.__user_id
         }
     }
 }
