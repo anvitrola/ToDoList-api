@@ -2,33 +2,77 @@ class UsersDAO {
     constructor(db){
         this.db = db;
     };
-    showUsers(res){
+    get() {
         return new Promise((resolve, reject) => {
             this.db.all(`SELECT * FROM users`, (err, rows) => {
                 err ? reject(err) : resolve(rows)
             })
         })
-        .then(rows => res.send(rows))
-        .catch(err => res.send("ERROR: ", err))
     };
-    insertUser(res, newUser){
+    insert(newUser) {
         let sql = `
-            INSERT INTO users (
-            name,
+            INSERT INTO users 
+            (name,
             email,
-            password
-            ) VALUES (?,?,?)
+            password) VALUES (?,?,?)
         `;
-        let params = [newUser.name, newUser.email, newUser.password];
+
+        let params = [
+            newUser.name, 
+            newUser.email, 
+            newUser.password
+        ];
+
+        return new Promise((resolve, reject) => {
+            this.db.run(
+                sql, 
+                params, 
+                (err, success) => {err ? reject(err) : resolve(success)}
+            )
+        })
+    };
+    delete(userId) {
+        return new Promise((resolve, reject) => {
+            this.db.run(
+                `DELETE FROM users WHERE id = (?)`, 
+                userId, 
+                (err, success) => {err ? reject(err) : resolve(success)}
+            )
+        })
+    };
+    update(updatedUser, userId) {
+        let sql = `
+        UPDATE users SET 
+        name = (?),
+        email = (?),
+        password = (?)
+        WHERE id = (?)
+        `;
+        
+        let params = [
+            updatedUser.name, 
+            updatedUser.email, 
+            updatedUser.password, 
+            userId
+        ];
 
         return new Promise((resolve, reject) =>{
-            this.db.run(sql, params, (err, success) => {
-                err ? reject(err) : resolve(success)
-            })
+            this.db.run(
+                sql, 
+                params, 
+                (err, success) => {err ? reject(err) : resolve(success)}
+            )
         })
-        .then(success => res.send(`User succesfully added to database`))
-        .catch(err => res.send(`ERROR: `, err))
-    }
-}
+    };
+    getUser(userId) {
+        return new Promise((resolve, reject) => {
+            this.db.get(
+                `SELECT name, email FROM users WHERE id = (?)`,
+                userId,
+                (err, row) => err ? reject(err) : resolve(row)
+            )
+        })
+    };
+};
 
 module.exports = UsersDAO;
