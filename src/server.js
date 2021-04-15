@@ -1,6 +1,10 @@
 const chalk = require("chalk"); //painting terminal to becomes easier to find errors
 const customExpress = require("./config/customExpress"); //requiring server configurations (customExpress)
 const app = customExpress();
+const db = require("./infra/sqlite-db"); 
+
+const userController = require("./controllers/user-controller")(app, db);
+const assignmentsController = require("./controllers/assignments-controller")(app, db);
 
 app.use((req, _, next) => {
     console.log(chalk.yellow(`[INFO]: Request ${req.method} type.`));

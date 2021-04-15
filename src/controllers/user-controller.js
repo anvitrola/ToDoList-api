@@ -1,10 +1,9 @@
 const User = require("../models/user-model"); 
-const db = require("../infra/sqlite-db"); 
 const DAO = require("../DAO/users-dao.js");
 
-const usersData = new DAO(db);
+module.exports = (app, db) => {
+    const usersData = new DAO(db);
 
-module.exports = app => {
     app.get("/user", (_, res) => {
         usersData.get()
             .then(rows => res.send(rows))
@@ -42,7 +41,7 @@ module.exports = app => {
         usersData.update(updatedUser, req.params.id)
             .then(success => res.send("User's information successfully updated"))
             .catch(err => res.send(`[ERROR][status: ${err.status}]`))
-    })
+    });
     
     app.get("/user/:id", (req, res) => {
         usersData.getUser(req.params.id)

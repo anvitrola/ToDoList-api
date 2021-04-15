@@ -1,15 +1,15 @@
 const Assignment = require('../models/assignments-model'); 
-const db = require("../infra/sqlite-db"); 
 const DAO = require("../DAO/assignments-dao");
 
-const assignmentsData = new DAO(db);
+module.exports = (app, db) => {
+    const assignmentsData = new DAO(db);
 
-module.exports = app => {
     app.get('/assignments', (_, res) => {
         assignmentsData.get()
             .then(rows => res.send(rows))
             .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
     });
+
     app.post('/assignments', (req, res) => {
         let body = req.body; 
         const assignment = new Assignment(
@@ -26,11 +26,13 @@ module.exports = app => {
                 .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
         } 
     });
+
     app.delete("/assignments/:id", (req, res) => {
         assignmentsData.delete(req.params.id)
             .then(() => res.send("Assignment successfully deleted"))
             .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
     });
+
     app.put("/assignments/:id", (req, res) => {
         let body = req.body;
 
@@ -46,6 +48,7 @@ module.exports = app => {
             .then(() => res.send("Assignment was successfully updated"))
             .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
     });
+
     app.get("/assignments/:id", (req, res) => {
         assignmentsData.getAssignment(req.params.id)
             .then((row) => console.log(row))
