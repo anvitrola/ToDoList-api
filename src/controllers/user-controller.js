@@ -4,47 +4,50 @@ const DAO = require("../DAO/users-dao.js");
 module.exports = (app, db) => {
     const usersData = new DAO(db);
 
-    app.get("/user", (_, res) => {
-        usersData.get()
+    app.get("/user", async (_, res) => {
+        await usersData.get()
             .then(rows => res.send(rows))
             .catch(err => res.send(`[ERROR][status: ${err.status}]`));
     });
 
-    app.post("/user", (req, res) => {
-        let body = req.body;
+    app.post("/user", async (req, res) => {
+        let {name, email, password} = req.body; //destructuring body 
+
         const user = new User(
-            body.name, 
-            body.email, 
-            body.password
+            name, 
+            email, 
+            password
         ); //creating new profile
 
-        if (body.name && body.email && body.password){
-            usersData.insert(user.profile())
-                .then(success => res.send(`User succesfully added to database`))
+        if (name && email && password){
+            await usersData.insert(user.profile())
+                .then((_) => res.send(`User succesfully added to database`))
                 .catch(err => res.send(`[ERROR][status: ${err.status}]`))
         }
     });
 
-    app.delete("/user/:id", (req, res) => {
-        usersData.delete(req.params.id)
-            .then(success => res.send("User successfully deleted"))
+    app.delete("/user/:id", async (req, res) => {
+        await usersData.delete(req.params.id)
+            .then((_) => res.send("User successfully deleted"))
             .catch(err => res.send(`[ERROR][status: ${err.status}]`))
     });
 
-    app.put("/user/:id" , (req, res) => {
+    app.put("/user/:id" , async (req, res) => {
+        const {name, email, password} = req.body;
+
         const updatedUser = {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password
+            name: name,
+            email: email,
+            password: password
         };
 
-        usersData.update(updatedUser, req.params.id)
-            .then(success => res.send("User's information successfully updated"))
-            .catch(err => res.send(`[ERROR][status: ${err.status}]`))
+        await usersData.update(updatedUser, req.params.id)
+            .then((_) => res.send({message: "User's information sucessfully updated"}))
+            .catch(err => res.send({[ERROR]: `${err.status}]`}))
     });
     
-    app.get("/user/:id", (req, res) => {
-        usersData.getUser(req.params.id)
+    app.get("/user/:id", async (req, res) => {
+        await usersData.getUser(req.params.id)
             .then(row => {
                 console.log(row);   
             })

@@ -2,15 +2,21 @@ class AssignmentsDAO{
     constructor(db){
         this.db = db
     };
-    get() {
-        return new Promise((resolve, reject) => {
-            this.db.all(
-                `SELECT * FROM assignments`,
-                 (err, rows) => { err ? reject (err) : resolve(rows)}
-            )
-        })
+
+    async get() {
+        try{
+            return await new Promise((resolve, reject) => {
+                this.db.all(
+                    `SELECT * FROM assignments`,
+                     (err, rows) => { err ? reject (err) : resolve(rows)}
+                )
+            })
+        } catch (err){
+            throw new Error(err)
+        }
     };
-    insert(newAssignment) {
+
+    async insert(newAssignment) {
         let sql = `
         INSERT INTO assignments 
         (title,
@@ -28,24 +34,34 @@ class AssignmentsDAO{
             newAssignment.user_id
         ];
 
-        return new Promise((resolve, reject) => {
-            this.db.run(
-                sql, 
-                params, 
-                (err, success) =>{err ? reject (err) : resolve(success)}
-            )
-        })
+        try{
+            return await new Promise((resolve, reject) => {
+                this.db.run(
+                    sql, 
+                    params, 
+                    (err, success) =>{err ? reject (err) : resolve(success)}
+                )
+            })
+        } catch (err){
+            throw new Error(err)
+        }
     };
-    delete(assignmentId) {
-        return new Promise((resolve, reject) => {
-            this.db.run(
-                `DELETE FROM assignments WHERE id = (?)`,
-                assignmentId,
-                (err, success) => {err ? reject(err) : resolve(success)}
-            )
-        })
+
+    async delete(assignmentId) {
+        try{
+            return await new Promise((resolve, reject) => {
+                this.db.run(
+                    `DELETE FROM assignments WHERE id = (?)`,
+                    assignmentId,
+                    (err, success) => {err ? reject(err) : resolve(success)}
+                )
+            })
+        } catch (err){
+            throw new Error(err)
+        }
     };
-    update(updatedAssignment, assignmentId) {
+
+    async update(updatedAssignment, assignmentId) {
         let sql = `
         UPDATE assignments SET
         title = (?),
@@ -53,8 +69,7 @@ class AssignmentsDAO{
         status = (?),
         created_at = (?),
         user_id = (?)
-        WHERE id = (?)
-        `;
+        WHERE id = (?)`;
 
         let params = [
             updatedAssignment.title, 
@@ -63,14 +78,19 @@ class AssignmentsDAO{
             assignmentId
         ]
 
-        return new Promise((resolve, reject) => {
-            this.db.run(
-                sql,
-                params,
-                (err, success) => {err ? reject(err) : resolve(success)}
-            )
-        })
+        try{
+            return new Promise((resolve, reject) => {
+                this.db.run(
+                    sql,
+                    params,
+                    (err, success) => {err ? reject(err) : resolve(success)}
+                )
+            })
+        } catch (err){
+            throw new Error(err)
+        }
     };
+    
     getAssignment(assignmentId) {
         return new Promise((resolve, reject) => {
             this.db.get(

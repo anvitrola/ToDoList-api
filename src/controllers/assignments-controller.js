@@ -4,56 +4,57 @@ const DAO = require("../DAO/assignments-dao");
 module.exports = (app, db) => {
     const assignmentsData = new DAO(db);
 
-    app.get('/assignments', (_, res) => {
-        assignmentsData.get()
+    app.get('/assignments', async (_, res) => {
+        await assignmentsData.get()
             .then(rows => res.send(rows))
-            .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
+            .catch(err => res.send({ERROR: err.status}))
     });
 
-    app.post('/assignments', (req, res) => {
-        let body = req.body; 
+    app.post('/assignments', async (req, res) => {
+        let {title, description, status, created_at, user_id} = req.body; 
+
         const assignment = new Assignment(
-            body.title, 
-            body.description, 
-            body.status, 
-            body.created_at, 
-            body.user_id
+            title, 
+            description, 
+            status, 
+            created_at, 
+            user_id
         ); 
 
-        if (body.title && body.description && body.status && body.created_at && body.user_id){
-            assignmentsData.insert(assignment.assignment())
-                .then(() => res.send("Assignment successfully added to database"))
-                .catch(err => res.send(`[ERROR][STATUS: ${err.status}]`))
+        if (title && description && status && created_at && user_id){
+            await assignmentsData.insert(assignment.assignment())
+                .then(() => res.send({message: "Assignment successfully added to database"}))
+                .catch(err => res.send({ERROR: err.status}))
         } 
     });
 
-    app.delete("/assignments/:id", (req, res) => {
-        assignmentsData.delete(req.params.id)
-            .then(() => res.send("Assignment successfully deleted"))
-            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+    app.delete("/assignments/:id", async (req, res) => {
+        await assignmentsData.delete(req.params.id)
+            .then((_) => res.send({message: "Assignment successfully deleted"}))
+            .catch((err) => res.send({ERROR: err.status}))
     });
 
-    app.put("/assignments/:id", (req, res) => {
-        let body = req.body;
+    app.put("/assignments/:id", async (req, res) => {
+        let {title, description, status, created_at, user_id} = req.body;
 
         const updatedAssignment = {
-            title: body.title,
-            description: body.description,
-            status: body.status,
-            created_at: body.created_at,
-            user_id: body.user_id
+            title: title,
+            description: description,
+            status: status,
+            created_at: created_at,
+            user_id: user_id
         }
 
-        assignmentsData.update(updatedAssignment, req.params.id)
-            .then(() => res.send("Assignment was successfully updated"))
-            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+        await assignmentsData.update(updatedAssignment, req.params.id)
+            .then((_) => res.send({message: "Assignment was successfully updated"}))
+            .catch((err) => res.send({ERROR: err.status}))
     });
 
-    app.get("/assignments/:id", (req, res) => {
-        assignmentsData.getAssignment(req.params.id)
+    app.get("/assignments/:id", async (req, res) => {
+        await assignmentsData.getAssignment(req.params.id)
             .then((row) => console.log(row))
-            .then(() => res.send(`Assignment ${req.params.id} informations was returned. check console`))
-            .catch((err) => res.send(`[ERROR][status]: ${err.status}`))
+            .then(() => res.send({message: "Assignment was returned. check console"}))
+            .catch((err) => res.send({ERROR: err.status}))
     });
 };
 
