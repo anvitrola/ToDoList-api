@@ -32,10 +32,10 @@ Além disto é bom ter um editor para trabalhar com o código como [VSCode](http
 
 ```bash
 # Clone este repositório
-$ git clone <https://github.com/anvitrola/javou-app>
+$ git clone <https://github.com/anvitrola/To-Do-List-API>
 
 # Acesse a pasta do projeto no terminal/cmd
-$ cd javou-app
+$ cd To-Do-List-API
 
 # Vá para a pasta src
 $ cd src
